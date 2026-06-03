@@ -1,0 +1,41 @@
+# track only what the model and site need; data (8GB), the wider research code,
+# venv and secrets stay local
+
+# ignore everything by default, then whitelist
+/*
+
+!/.gitignore
+!/README.md
+!/requirements.txt
+
+# data substrate + feature helpers
+!/newcycle/
+/newcycle/*
+!/newcycle/featlab.py
+!/newcycle/s2_build_features.py
+
+# the model: harness, features, sp500 book, validation, live output
+!/rebuild/
+/rebuild/*
+!/rebuild/harness.py
+!/rebuild/best_model.py
+!/rebuild/sp500_model.py
+!/rebuild/sp500_holdout.py
+!/rebuild/sp500_predict.py
+!/rebuild/sp500_history.py
+
+# website
+!/web/
+
+# model output that powers the site (small json only)
+!/reports/
+/reports/*
+!/reports/sp500_predictions.json
+!/reports/sp500_history.json
+
+# never track: secrets, data, env, caches
+.env
+data/
+.venv/
+__pycache__/
+*.pyc
