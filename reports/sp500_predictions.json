@@ -1,0 +1,581 @@
+{
+ "as_of": "2026-05-08",
+ "universe": "Top-500 by market cap (S&P-500 proxy)",
+ "model": "5-seed LightGBM ensemble, 63-day signal, market-neutral, beta + factor-neutral",
+ "book": "Long top-30 / short bottom-30 (inverse-vol, monthly). Shown: highest-conviction 15 per side.",
+ "n_features": 49,
+ "longs": [
+  {
+   "ticker": "FCX",
+   "price": 61.65,
+   "rank": 1,
+   "drivers": [
+    {
+     "text": "frequent price gaps",
+     "mag": 1.0
+    },
+    {
+     "text": "strong intermediate momentum",
+     "mag": 0.274
+    },
+    {
+     "text": "high downside volatility",
+     "mag": 0.061
+    }
+   ]
+  },
+  {
+   "ticker": "SCCO",
+   "price": 185.29,
+   "rank": 2,
+   "drivers": [
+    {
+     "text": "frequent price gaps",
+     "mag": 1.0
+    },
+    {
+     "text": "richly valued on book",
+     "mag": 0.155
+    },
+    {
+     "text": "strong intermediate momentum",
+     "mag": 0.106
+    }
+   ]
+  },
+  {
+   "ticker": "GDXU",
+   "price": 203.99,
+   "rank": 3,
+   "drivers": [
+    {
+     "text": "frequent price gaps",
+     "mag": 1.0
+    },
+    {
+     "text": "strong intermediate momentum",
+     "mag": 0.451
+    },
+    {
+     "text": "below 3-month highs",
+     "mag": 0.398
+    }
+   ]
+  },
+  {
+   "ticker": "STX",
+   "price": 782.64,
+   "rank": 4,
+   "drivers": [
+    {
+     "text": "frequent price gaps",
+     "mag": 1.0
+    },
+    {
+     "text": "richly valued on book",
+     "mag": 0.107
+    },
+    {
+     "text": "cash-heavy balance sheet",
+     "mag": 0.075
+    }
+   ]
+  },
+  {
+   "ticker": "TER",
+   "price": 359.77,
+   "rank": 5,
+   "drivers": [
+    {
+     "text": "frequent price gaps",
+     "mag": 1.0
+    },
+    {
+     "text": "strong intermediate momentum",
+     "mag": 0.241
+    },
+    {
+     "text": "not diluting / buying back",
+     "mag": 0.171
+    }
+   ]
+  },
+  {
+   "ticker": "MU",
+   "price": 746.81,
+   "rank": 6,
+   "drivers": [
+    {
+     "text": "frequent price gaps",
+     "mag": 1.0
+    },
+    {
+     "text": "very liquid",
+     "mag": 0.288
+    },
+    {
+     "text": "richly valued on book",
+     "mag": 0.139
+    }
+   ]
+  },
+  {
+   "ticker": "WDC",
+   "price": 480.0,
+   "rank": 7,
+   "drivers": [
+    {
+     "text": "frequent price gaps",
+     "mag": 1.0
+    },
+    {
+     "text": "strong intermediate momentum",
+     "mag": 0.13
+    },
+    {
+     "text": "richly valued on book",
+     "mag": 0.097
+    }
+   ]
+  },
+  {
+   "ticker": "LRCX",
+   "price": 294.05,
+   "rank": 8,
+   "drivers": [
+    {
+     "text": "frequent price gaps",
+     "mag": 1.0
+    },
+    {
+     "text": "richly valued on book",
+     "mag": 0.192
+    },
+    {
+     "text": "strong intermediate momentum",
+     "mag": 0.146
+    }
+   ]
+  },
+  {
+   "ticker": "LITE",
+   "price": 903.8,
+   "rank": 9,
+   "drivers": [
+    {
+     "text": "frequent price gaps",
+     "mag": 1.0
+    },
+    {
+     "text": "very liquid",
+     "mag": 0.273
+    },
+    {
+     "text": "strong intermediate momentum",
+     "mag": 0.177
+    }
+   ]
+  },
+  {
+   "ticker": "AEM",
+   "price": 193.21,
+   "rank": 10,
+   "drivers": [
+    {
+     "text": "frequent price gaps",
+     "mag": 1.0
+    },
+    {
+     "text": "strong intermediate momentum",
+     "mag": 0.446
+    },
+    {
+     "text": "richly valued on book",
+     "mag": 0.362
+    }
+   ]
+  },
+  {
+   "ticker": "TPR",
+   "price": 133.48,
+   "rank": 11,
+   "drivers": [
+    {
+     "text": "frequent price gaps",
+     "mag": 1.0
+    },
+    {
+     "text": "strong intermediate momentum",
+     "mag": 0.994
+    },
+    {
+     "text": "not diluting / buying back",
+     "mag": 0.967
+    }
+   ]
+  },
+  {
+   "ticker": "NEM",
+   "price": 116.51,
+   "rank": 12,
+   "drivers": [
+    {
+     "text": "frequent price gaps",
+     "mag": 1.0
+    },
+    {
+     "text": "strong intermediate momentum",
+     "mag": 0.219
+    },
+    {
+     "text": "not diluting / buying back",
+     "mag": 0.086
+    }
+   ]
+  },
+  {
+   "ticker": "ALB",
+   "price": 203.52,
+   "rank": 13,
+   "drivers": [
+    {
+     "text": "frequent price gaps",
+     "mag": 1.0
+    },
+    {
+     "text": "strong intermediate momentum",
+     "mag": 0.19
+    },
+    {
+     "text": "cash-heavy balance sheet",
+     "mag": 0.073
+    }
+   ]
+  },
+  {
+   "ticker": "KLAC",
+   "price": 1869.19,
+   "rank": 14,
+   "drivers": [
+    {
+     "text": "frequent price gaps",
+     "mag": 1.0
+    },
+    {
+     "text": "richly valued on book",
+     "mag": 0.289
+    },
+    {
+     "text": "high downside volatility",
+     "mag": 0.131
+    }
+   ]
+  },
+  {
+   "ticker": "UAL",
+   "price": 99.58,
+   "rank": 15,
+   "drivers": [
+    {
+     "text": "frequent price gaps",
+     "mag": 1.0
+    },
+    {
+     "text": "high downside volatility",
+     "mag": 0.088
+    },
+    {
+     "text": "elevated 3-month volatility",
+     "mag": 0.053
+    }
+   ]
+  }
+ ],
+ "shorts": [
+  {
+   "ticker": "TRI",
+   "price": 92.94,
+   "rank": 1,
+   "drivers": [
+    {
+     "text": "weak 6-month momentum",
+     "mag": 1.0
+    },
+    {
+     "text": "high stock-specific risk",
+     "mag": 0.998
+    },
+    {
+     "text": "frequent drawdowns",
+     "mag": 0.323
+    }
+   ]
+  },
+  {
+   "ticker": "EA",
+   "price": 200.44,
+   "rank": 2,
+   "drivers": [
+    {
+     "text": "calm recent trading",
+     "mag": 1.0
+    },
+    {
+     "text": "calm long-run volatility",
+     "mag": 0.676
+    },
+    {
+     "text": "high gross profitability",
+     "mag": 0.496
+    }
+   ]
+  },
+  {
+   "ticker": "MDB",
+   "price": 299.47,
+   "rank": 3,
+   "drivers": [
+    {
+     "text": "high stock-specific risk",
+     "mag": 1.0
+    },
+    {
+     "text": "weak 6-month momentum",
+     "mag": 0.746
+    },
+    {
+     "text": "conservatively financed",
+     "mag": 0.402
+    }
+   ]
+  },
+  {
+   "ticker": "FSLR",
+   "price": 219.95,
+   "rank": 4,
+   "drivers": [
+    {
+     "text": "high stock-specific risk",
+     "mag": 1.0
+    },
+    {
+     "text": "conservatively financed",
+     "mag": 0.523
+    },
+    {
+     "text": "not diluting / buying back",
+     "mag": 0.174
+    }
+   ]
+  },
+  {
+   "ticker": "RVMD",
+   "price": 141.81,
+   "rank": 5,
+   "drivers": [
+    {
+     "text": "high stock-specific risk",
+     "mag": 1.0
+    },
+    {
+     "text": "weak cash generation",
+     "mag": 0.603
+    },
+    {
+     "text": "conservatively financed",
+     "mag": 0.472
+    }
+   ]
+  },
+  {
+   "ticker": "VEEV",
+   "price": 166.34,
+   "rank": 6,
+   "drivers": [
+    {
+     "text": "weak 6-month momentum",
+     "mag": 1.0
+    },
+    {
+     "text": "high stock-specific risk",
+     "mag": 0.92
+    },
+    {
+     "text": "conservatively financed",
+     "mag": 0.779
+    }
+   ]
+  },
+  {
+   "ticker": "VICI",
+   "price": 28.84,
+   "rank": 7,
+   "drivers": [
+    {
+     "text": "calmer than size peers",
+     "mag": 1.0
+    },
+    {
+     "text": "conservatively financed",
+     "mag": 0.448
+    },
+    {
+     "text": "low market beta",
+     "mag": 0.22
+    }
+   ]
+  },
+  {
+   "ticker": "ORLY",
+   "price": 92.96,
+   "rank": 8,
+   "drivers": [
+    {
+     "text": "diluting its share count",
+     "mag": 1.0
+    },
+    {
+     "text": "high gross profitability",
+     "mag": 0.407
+    },
+    {
+     "text": "low market beta",
+     "mag": 0.288
+    }
+   ]
+  },
+  {
+   "ticker": "INTU",
+   "price": 396.31,
+   "rank": 9,
+   "drivers": [
+    {
+     "text": "high stock-specific risk",
+     "mag": 1.0
+    },
+    {
+     "text": "weak 6-month momentum",
+     "mag": 0.51
+    },
+    {
+     "text": "fading intermediate momentum",
+     "mag": 0.288
+    }
+   ]
+  },
+  {
+   "ticker": "SNOW",
+   "price": 152.45,
+   "rank": 10,
+   "drivers": [
+    {
+     "text": "high stock-specific risk",
+     "mag": 1.0
+    },
+    {
+     "text": "weak 6-month momentum",
+     "mag": 0.777
+    },
+    {
+     "text": "frequent drawdowns",
+     "mag": 0.353
+    }
+   ]
+  },
+  {
+   "ticker": "NTRA",
+   "price": 194.24,
+   "rank": 11,
+   "drivers": [
+    {
+     "text": "high stock-specific risk",
+     "mag": 1.0
+    },
+    {
+     "text": "expensive on sales",
+     "mag": 0.955
+    },
+    {
+     "text": "conservatively financed",
+     "mag": 0.554
+    }
+   ]
+  },
+  {
+   "ticker": "ZS",
+   "price": 152.13,
+   "rank": 12,
+   "drivers": [
+    {
+     "text": "high stock-specific risk",
+     "mag": 1.0
+    },
+    {
+     "text": "weak 6-month momentum",
+     "mag": 0.954
+    },
+    {
+     "text": "frequent drawdowns",
+     "mag": 0.358
+    }
+   ]
+  },
+  {
+   "ticker": "EQT",
+   "price": 55.96,
+   "rank": 13,
+   "drivers": [
+    {
+     "text": "conservatively financed",
+     "mag": 1.0
+    },
+    {
+     "text": "low market beta",
+     "mag": 0.485
+    },
+    {
+     "text": "low stock-specific noise",
+     "mag": 0.342
+    }
+   ]
+  },
+  {
+   "ticker": "AXON",
+   "price": 403.54,
+   "rank": 14,
+   "drivers": [
+    {
+     "text": "high stock-specific risk",
+     "mag": 1.0
+    },
+    {
+     "text": "weak 6-month momentum",
+     "mag": 0.771
+    },
+    {
+     "text": "not diluting / buying back",
+     "mag": 0.263
+    }
+   ]
+  },
+  {
+   "ticker": "NTES",
+   "price": 115.91,
+   "rank": 15,
+   "drivers": [
+    {
+     "text": "conservatively financed",
+     "mag": 1.0
+    },
+    {
+     "text": "expensive on sales",
+     "mag": 0.847
+    },
+    {
+     "text": "low market beta",
+     "mag": 0.737
+    }
+   ]
+  }
+ ]
+}
