@@ -1,0 +1,299 @@
+<title>S&P 500 Market-Neutral Model</title>
+<style>
+  :root{
+    --paper:#F3F4F1; --panel:#F8F9F6; --ink:#17211D; --ink-soft:#303A34;
+    --muted:#55605A; --line:#DBDFDA; --line-soft:#E7EAE5;
+    --pine:#0E6151; --pine-soft:#E7F0EC; --clay:#A0492F; --clay-soft:#F5EAE5;
+    --s-model:#0a8a68; --s-mkt:#2a78d6;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;line-height:1.55;font-feature-settings:"tnum" 1;}
+  .wrap{max-width:1060px;margin:0 auto;padding:clamp(2.2rem,5vw,4rem) clamp(1.1rem,4vw,2.4rem) 4rem;}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--pine);display:flex;align-items:center;gap:.7rem;margin:0 0 1.2rem;flex-wrap:wrap;}
+  .eyebrow::before{content:"";width:24px;height:1px;background:var(--pine);}
+  h1{font-size:clamp(1.9rem,4.6vw,2.8rem);line-height:1.05;letter-spacing:-.02em;font-weight:680;margin:0 0 .9rem;text-wrap:balance;max-width:22ch;}
+  .sub{font-size:1.02rem;color:var(--ink-soft);max-width:70ch;margin:0 0 1.3rem;}
+  .sub b{color:var(--pine);font-weight:600;}
+  .meta{display:flex;flex-wrap:wrap;gap:.4rem;font-family:var(--mono);font-size:.72rem;}
+  .meta span{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:.28rem .6rem;border-radius:2px;}
+  .meta span b{color:var(--ink);font-weight:500;}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:2.2rem;}
+  .stat{border:1px solid var(--line);background:var(--panel);border-radius:5px;padding:1rem 1.1rem;}
+  .stat .k{font-family:var(--mono);font-size:.64rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem;}
+  .stat .v{font-family:var(--mono);font-size:1.65rem;font-weight:650;letter-spacing:-.01em;font-variant-numeric:tabular-nums;line-height:1.1;}
+  .stat .v.up{color:var(--pine);} .stat .v.dn{color:var(--clay);}
+  .stat .n{font-size:.74rem;color:var(--muted);margin-top:.3rem;}
+
+  .honest{margin:1.4rem 0 0;border:1px solid var(--line);border-left:3px solid var(--clay);background:var(--panel);border-radius:3px;padding:1rem 1.2rem;font-size:.93rem;color:var(--ink-soft);}
+  .honest .lb{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--clay);display:block;margin-bottom:.4rem;}
+  .honest b{color:var(--ink);font-weight:600;}
+
+  section{margin-top:3rem;}
+  .shd{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;}
+  h2{font-size:1.15rem;letter-spacing:-.01em;font-weight:650;margin:0;}
+  .shd .note{font-size:.78rem;color:var(--muted);}
+  .legend{display:flex;gap:1.1rem;font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);align-items:center;flex-wrap:wrap;}
+  .legend .it{display:flex;align-items:center;gap:.45rem;}
+  .legend .sw{width:16px;height:3px;border-radius:2px;}
+
+  .chart{position:relative;border:1px solid var(--line);background:var(--panel);border-radius:5px;padding:.8rem .8rem .4rem;}
+  .chart svg{display:block;width:100%;height:auto;}
+  .tip{position:absolute;pointer-events:none;background:var(--ink);color:#F3F4F1;font-family:var(--mono);font-size:.7rem;line-height:1.5;padding:.45rem .6rem;border-radius:3px;white-space:nowrap;opacity:0;transition:opacity .12s;z-index:3;}
+  @media(prefers-reduced-motion:reduce){.tip{transition:none;}}
+  .tip .d{color:#B9C4BE;} .tip b{font-weight:600;}
+
+  .hm-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:5px;background:var(--panel);}
+  table.hm{border-collapse:collapse;width:100%;min-width:760px;font-family:var(--mono);font-variant-numeric:tabular-nums;}
+  .hm th{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500;padding:.55rem .4rem;border-bottom:1px solid var(--line);text-align:right;}
+  .hm th:first-child{text-align:left;padding-left:.9rem;}
+  .hm td{font-size:.72rem;text-align:right;padding:.42rem .4rem;border-bottom:1px solid var(--line-soft);color:var(--ink-soft);}
+  .hm tr:last-child td{border-bottom:none;}
+  .hm td:first-child{text-align:left;padding-left:.9rem;color:var(--ink);font-weight:600;font-size:.74rem;}
+  .hm td.yr{font-weight:650;color:var(--ink);border-left:1px solid var(--line);}
+  .hm td.hold{position:relative;}
+  .hm .hbadge{font-size:.56rem;letter-spacing:.08em;color:var(--pine);border:1px solid var(--pine);border-radius:2px;padding:0 .25rem;margin-left:.4rem;vertical-align:1px;}
+
+  .board{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;}
+  .col{border:1px solid var(--line);border-radius:5px;overflow:hidden;background:var(--panel);}
+  .colhd{display:flex;align-items:baseline;justify-content:space-between;padding:.85rem 1.1rem;border-bottom:1px solid var(--line);font-family:var(--mono);}
+  .colhd .side{font-size:.82rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;display:flex;align-items:center;gap:.5rem;}
+  .colhd .side::before{content:"";width:9px;height:9px;border-radius:2px;}
+  .col.long .colhd{background:var(--pine-soft);} .col.long .side{color:var(--pine);} .col.long .side::before{background:var(--pine);}
+  .col.short .colhd{background:var(--clay-soft);} .col.short .side{color:var(--clay);} .col.short .side::before{background:var(--clay);}
+  .colhd .cnt{font-size:.66rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+  .pick{display:grid;grid-template-columns:26px 1fr;gap:.7rem;padding:.85rem 1.1rem;border-bottom:1px solid var(--line-soft);}
+  .pick:last-child{border-bottom:none;}
+  .pick .rk{font-family:var(--mono);font-size:.72rem;color:var(--muted);padding-top:.2rem;font-variant-numeric:tabular-nums;}
+  .pick .hd{display:flex;align-items:baseline;justify-content:space-between;gap:.6rem;margin-bottom:.45rem;}
+  .pick .tk{font-family:var(--mono);font-size:1.02rem;font-weight:600;letter-spacing:.02em;color:var(--ink);}
+  .pick .px{font-family:var(--mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums;}
+  .drv{display:flex;flex-direction:column;gap:.32rem;}
+  .tag{display:flex;align-items:center;gap:.55rem;font-size:.8rem;color:var(--ink-soft);}
+  .tag .b{height:4px;border-radius:2px;flex:none;min-width:6px;}
+  .col.long .tag .b{background:var(--pine);} .col.short .tag .b{background:var(--clay);}
+
+  footer{margin-top:3rem;padding-top:1.4rem;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:.9rem;}
+  .how{font-size:.88rem;color:var(--ink-soft);max-width:82ch;}
+  .how b{color:var(--ink);font-weight:600;}
+  ol.steps{margin:.4rem 0 0;padding-left:1.2rem;font-size:.88rem;color:var(--ink-soft);display:flex;flex-direction:column;gap:.35rem;}
+  ol.steps b{color:var(--ink);font-weight:600;}
+  .disc{font-family:var(--mono);font-size:.68rem;color:var(--muted);letter-spacing:.02em;line-height:1.6;border:1px solid var(--line);background:var(--panel);border-radius:3px;padding:.7rem .9rem;}
+  .disc b{color:var(--clay);}
+
+  @media(max-width:860px){.stats{grid-template-columns:1fr 1fr;}}
+  @media(max-width:720px){.board{grid-template-columns:1fr;}}
+</style>
+
+<main class="wrap">
+  <header>
+    <div class="eyebrow"><span id="asof">AS OF —</span> · S&amp;P 500 · Market-Neutral</div>
+    <h1>S&amp;P 500 Market-Neutral Model</h1>
+    <p class="sub">A long/short book on the 500 largest US stocks. Every month a <b>5-seed LightGBM ensemble</b>
+      ranks the cross-section on 49 price and fundamental features, buys the top 30, shorts the bottom 30, and
+      projects out market beta and the top statistical risk factors. Net of 5&nbsp;bps/side. <b>No leverage.</b></p>
+    <div class="meta">
+      <span>Signal <b>63-day</b></span><span>Rebalance <b>monthly</b></span>
+      <span>Book <b>top-30 / bottom-30</b></span><span>Neutralization <b>β + K=5 factors</b></span>
+      <span>History <b id="mhist">—</b> months</span>
+    </div>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="honest">
+    <span class="lb">Read the numbers right</span>
+    In development (2016-23) this model shows <b id="devline">—</b>. Those years were used to build it, so
+    they flatter it. The 2024-26 window was <b>sealed until the final run</b>. Its
+    <b id="holdline">—</b> is the honest estimate of the edge, and it is roughly 3x smaller than in-sample.
+    Small, but market-neutral and real.
+  </div>
+
+  <section>
+    <div class="shd">
+      <h2>Growth of $1, net, 2016-2026</h2>
+      <div class="legend">
+        <span class="it"><span class="sw" style="background:var(--s-model)"></span>Model (market-neutral)</span>
+        <span class="it"><span class="sw" style="background:var(--s-mkt)"></span>S&amp;P 500 universe (equal-weight)</span>
+        <span class="it"><span class="sw" style="background:var(--pine-soft);border:1px solid var(--pine)"></span>sealed holdout</span>
+      </div>
+    </div>
+    <div class="chart" id="eqchart"><div class="tip" id="eqtip"></div></div>
+  </section>
+
+  <section>
+    <div class="shd">
+      <h2>Drawdown</h2>
+      <div class="note">peak-to-trough on the model's net equity curve</div>
+    </div>
+    <div class="chart" id="ddchart"><div class="tip" id="ddtip"></div></div>
+  </section>
+
+  <section>
+    <div class="shd">
+      <h2>Monthly net returns</h2>
+      <div class="note">% per month &middot; green = gain, rust = loss &middot; 2024+ is the sealed holdout</div>
+    </div>
+    <div class="hm-wrap"><table class="hm" id="hm"></table></div>
+  </section>
+
+  <section>
+    <div class="shd">
+      <h2>Current book</h2>
+      <div class="note" id="bknote">highest-conviction 15 per side &middot; bars = the model's own SHAP drivers</div>
+    </div>
+    <div class="board">
+      <div class="col long" id="longcol">
+        <div class="colhd"><span class="side">Long</span><span class="cnt">top 15 of 30</span></div>
+      </div>
+      <div class="col short" id="shortcol">
+        <div class="colhd"><span class="side">Short</span><span class="cnt">top 15 of 30</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="how"><b>How it works.</b>
+      <ol class="steps">
+        <li><b>Universe.</b> Top 500 by market cap, $5M+ daily dollar volume, rebuilt every month as of that date, so no survivorship bias.</li>
+        <li><b>Features.</b> 49 signals per stock: multi-horizon volatility and momentum, path shape, liquidity, and SEC-filed fundamentals (profitability, value, issuance), all lagged to what was knowable at the time.</li>
+        <li><b>Model.</b> Five LightGBM rankers (different seeds) trained walk-forward (each year predicted using only earlier years), then rank-averaged.</li>
+        <li><b>Book.</b> Long the top 30, short the bottom 30, inverse-volatility weighted, then weights are projected orthogonal to market beta and the top-5 statistical risk factors.</li>
+        <li><b>Discipline.</b> 5 bps/side costs on every trade, and 2024-26 held out untouched until the single final evaluation.</li>
+      </ol>
+    </div>
+    <div class="disc"><b>Research model, not investment advice.</b> All results are simulated net returns at the
+      stated cost assumption; the S&amp;P line is the equal-weight average of the same universe, not the index itself.
+      The occasional universe artifact (e.g. a leveraged-ETF proxy) can appear in the book. Past and simulated
+      performance do not guarantee future results.</div>
+  </footer>
+</main>
+
+<script>
+const HIST={"built":"2026-06-18","config":"5-seed LightGBM, 63-day signal, top/bot-30 inverse-vol, K=5 factor-neutral, 5 bps/side","dev":{"ann":0.0919,"sharpe":0.98,"maxdd":-0.1718,"months":95},"holdout":{"ann":0.0368,"sharpe":0.39,"maxdd":-0.1572,"months":29},"series":[{"d":"2016-02-02","model":0.043414,"mkt":0.065656,"holdout":false},{"d":"2016-03-03","model":0.00582,"mkt":0.032802,"holdout":false},{"d":"2016-04-04","model":0.061399,"mkt":0.019053,"holdout":false},{"d":"2016-05-03","model":0.004826,"mkt":0.031578,"holdout":false},{"d":"2016-06-02","model":0.023516,"mkt":0.002601,"holdout":false},{"d":"2016-07-01","model":0.037508,"mkt":0.035454,"holdout":false},{"d":"2016-08-02","model":0.031732,"mkt":0.016706,"holdout":false},{"d":"2016-08-31","model":-0.021173,"mkt":0.001677,"holdout":false},{"d":"2016-09-30","model":-0.019411,"mkt":-0.017933,"holdout":false},{"d":"2016-10-31","model":-0.019861,"mkt":0.041341,"holdout":false},{"d":"2016-11-30","model":-0.046062,"mkt":0.009632,"holdout":false},{"d":"2016-12-30","model":0.009801,"mkt":0.020266,"holdout":false},{"d":"2017-02-01","model":0.01398,"mkt":0.046793,"holdout":false},{"d":"2017-03-03","model":0.006576,"mkt":-0.004882,"holdout":false},{"d":"2017-04-03","model":-0.026405,"mkt":0.014077,"holdout":false},{"d":"2017-05-03","model":-0.005178,"mkt":0.027301,"holdout":false},{"d":"2017-06-02","model":-0.001202,"mkt":0.000754,"holdout":false},{"d":"2017-07-03","model":-0.017125,"mkt":0.016953,"holdout":false},{"d":"2017-08-02","model":-0.021445,"mkt":-0.00058,"holdout":false},{"d":"2017-08-31","model":0.000672,"mkt":0.029839,"holdout":false},{"d":"2017-10-02","model":-0.019204,"mkt":0.013764,"holdout":false},{"d":"2017-10-31","model":-0.019443,"mkt":0.025894,"holdout":false},{"d":"2017-11-30","model":0.006611,"mkt":0.022537,"holdout":false},{"d":"2018-01-02","model":0.079163,"mkt":0.040722,"holdout":false},{"d":"2018-02-01","model":0.047987,"mkt":-0.026788,"holdout":false},{"d":"2018-03-05","model":-0.011757,"mkt":-0.02128,"holdout":false},{"d":"2018-04-04","model":-0.004627,"mkt":-0.012052,"holdout":false},{"d":"2018-05-03","model":0.00463,"mkt":0.036382,"holdout":false},{"d":"2018-06-04","model":-0.03002,"mkt":-0.011112,"holdout":false},{"d":"2018-07-03","model":0.003956,"mkt":0.02462,"holdout":false},{"d":"2018-08-02","model":0.015974,"mkt":0.014754,"holdout":false},{"d":"2018-08-31","model":0.024978,"mkt":0.002403,"holdout":false},{"d":"2018-10-02","model":-0.006818,"mkt":-0.077204,"holdout":false},{"d":"2018-10-31","model":-0.01438,"mkt":0.019432,"holdout":false},{"d":"2018-11-30","model":-0.004314,"mkt":-0.117257,"holdout":false},{"d":"2019-01-03","model":0.020091,"mkt":0.11208,"holdout":false},{"d":"2019-02-04","model":0.028147,"mkt":0.016482,"holdout":false},{"d":"2019-03-06","model":0.005139,"mkt":0.039677,"holdout":false},{"d":"2019-04-04","model":0.047021,"mkt":0.009653,"holdout":false},{"d":"2019-05-06","model":0.005558,"mkt":-0.020453,"holdout":false},{"d":"2019-06-05","model":0.027806,"mkt":0.054376,"holdout":false},{"d":"2019-07-05","model":0.010352,"mkt":-0.046468,"holdout":false},{"d":"2019-08-05","model":-0.003878,"mkt":0.022709,"holdout":false},{"d":"2019-09-04","model":0.001542,"mkt":-0.018444,"holdout":false},{"d":"2019-10-03","model":-0.02968,"mkt":0.050137,"holdout":false},{"d":"2019-11-01","model":0.035491,"mkt":0.000761,"holdout":false},{"d":"2019-12-03","model":-0.026529,"mkt":0.040826,"holdout":false},{"d":"2020-01-03","model":0.011246,"mkt":0.01589,"holdout":false},{"d":"2020-02-04","model":-0.02076,"mkt":-0.08914,"holdout":false},{"d":"2020-03-05","model":0.022309,"mkt":-0.210812,"holdout":false},{"d":"2020-04-03","model":0.023591,"mkt":0.1115,"holdout":false},{"d":"2020-05-05","model":-0.002361,"mkt":0.115365,"holdout":false},{"d":"2020-06-04","model":0.028214,"mkt":-0.023743,"holdout":false},{"d":"2020-07-06","model":0.016051,"mkt":0.049633,"holdout":false},{"d":"2020-08-04","model":0.056959,"mkt":0.037457,"holdout":false},{"d":"2020-09-02","model":0.006193,"mkt":-0.036888,"holdout":false},{"d":"2020-10-02","model":0.000974,"mkt":-0.010003,"holdout":false},{"d":"2020-11-02","model":-0.040309,"mkt":0.116312,"holdout":false},{"d":"2020-12-02","model":-0.025538,"mkt":0.018668,"holdout":false},{"d":"2021-01-04","model":0.027536,"mkt":0.03743,"holdout":false},{"d":"2021-02-03","model":-0.02961,"mkt":0.018818,"holdout":false},{"d":"2021-03-05","model":0.029358,"mkt":0.053885,"holdout":false},{"d":"2021-04-06","model":-0.019889,"mkt":0.024368,"holdout":false},{"d":"2021-05-05","model":-0.02856,"mkt":0.029482,"holdout":false},{"d":"2021-06-04","model":0.049364,"mkt":-0.004636,"holdout":false},{"d":"2021-07-06","model":0.033568,"mkt":0.010777,"holdout":false},{"d":"2021-08-04","model":0.048155,"mkt":0.026216,"holdout":false},{"d":"2021-09-02","model":0.018585,"mkt":-0.045087,"holdout":false},{"d":"2021-10-04","model":0.048232,"mkt":0.064339,"holdout":false},{"d":"2021-11-02","model":0.058321,"mkt":-0.028507,"holdout":false},{"d":"2021-12-02","model":-0.017366,"mkt":0.038361,"holdout":false},{"d":"2022-01-03","model":0.006785,"mkt":-0.033086,"holdout":false},{"d":"2022-02-02","model":0.068881,"mkt":-0.032173,"holdout":false},{"d":"2022-03-04","model":-0.016166,"mkt":0.056224,"holdout":false},{"d":"2022-04-04","model":0.036416,"mkt":-0.044896,"holdout":false},{"d":"2022-05-04","model":-0.005054,"mkt":-0.014634,"holdout":false},{"d":"2022-06-03","model":0.029284,"mkt":-0.094466,"holdout":false},{"d":"2022-07-06","model":0.037387,"mkt":0.069793,"holdout":false},{"d":"2022-08-04","model":0.026693,"mkt":-0.028928,"holdout":false},{"d":"2022-09-02","model":-0.001054,"mkt":-0.024424,"holdout":false},{"d":"2022-10-04","model":0.031713,"mkt":0.019225,"holdout":false},{"d":"2022-11-02","model":-0.022457,"mkt":0.112397,"holdout":false},{"d":"2022-12-02","model":-0.031717,"mkt":-0.028877,"holdout":false},{"d":"2023-01-04","model":-0.045982,"mkt":0.067089,"holdout":false},{"d":"2023-02-03","model":-0.022025,"mkt":-0.025997,"holdout":false},{"d":"2023-03-07","model":6.5e-05,"mkt":0.000558,"holdout":false},{"d":"2023-04-05","model":-0.016901,"mkt":0.003793,"holdout":false},{"d":"2023-05-05","model":0.017738,"mkt":0.003967,"holdout":false},{"d":"2023-06-06","model":0.046228,"mkt":0.024524,"holdout":false},{"d":"2023-07-07","model":0.024733,"mkt":0.026949,"holdout":false},{"d":"2023-08-07","model":-0.009005,"mkt":-0.012077,"holdout":false},{"d":"2023-09-06","model":-0.013816,"mkt":-0.047734,"holdout":false},{"d":"2023-10-05","model":0.00984,"mkt":0.031632,"holdout":false},{"d":"2023-11-03","model":0.036958,"mkt":0.044908,"holdout":false},{"d":"2023-12-05","model":-0.004359,"mkt":0.037241,"holdout":false},{"d":"2024-01-05","model":0.044807,"mkt":0.021755,"holdout":true},{"d":"2024-02-06","model":-0.026809,"mkt":0.047508,"holdout":true},{"d":"2024-03-07","model":-0.00077,"mkt":0.012731,"holdout":true},{"d":"2024-04-08","model":-0.017655,"mkt":-0.01281,"holdout":true},{"d":"2024-05-07","model":-0.039854,"mkt":0.008831,"holdout":true},{"d":"2024-06-06","model":-0.008505,"mkt":0.008384,"holdout":true},{"d":"2024-07-09","model":0.052505,"mkt":-0.023897,"holdout":true},{"d":"2024-08-07","model":0.002918,"mkt":0.037058,"holdout":true},{"d":"2024-09-06","model":0.034395,"mkt":0.043516,"holdout":true},{"d":"2024-10-07","model":0.027459,"mkt":0.008105,"holdout":true},{"d":"2024-11-05","model":-0.027599,"mkt":0.01812,"holdout":true},{"d":"2024-12-05","model":0.006089,"mkt":-0.046475,"holdout":true},{"d":"2025-01-07","model":0.058219,"mkt":0.038388,"holdout":true},{"d":"2025-02-07","model":0.012718,"mkt":-0.046417,"holdout":true},{"d":"2025-03-11","model":0.017224,"mkt":-0.039083,"holdout":true},{"d":"2025-04-09","model":-0.008083,"mkt":0.080991,"holdout":true},{"d":"2025-05-09","model":-0.000872,"mkt":0.024385,"holdout":true},{"d":"2025-06-10","model":0.011634,"mkt":0.020045,"holdout":true},{"d":"2025-07-11","model":-0.042603,"mkt":0.002442,"holdout":true},{"d":"2025-08-11","model":-0.039658,"mkt":0.028583,"holdout":true},{"d":"2025-09-10","model":-0.002079,"mkt":0.017353,"holdout":true},{"d":"2025-10-09","model":-0.060842,"mkt":-0.00409,"holdout":true},{"d":"2025-11-07","model":-0.021967,"mkt":0.009894,"holdout":true},{"d":"2025-12-09","model":0.009574,"mkt":0.039776,"holdout":true},{"d":"2026-01-09","model":0.04546,"mkt":0.039048,"holdout":true},{"d":"2026-02-10","model":-0.004923,"mkt":-0.032119,"holdout":true},{"d":"2026-03-11","model":0.011121,"mkt":0.030551,"holdout":true},{"d":"2026-04-09","model":0.059367,"mkt":0.020406,"holdout":true},{"d":"2026-05-08","model":0.009856,"mkt":0.008626,"holdout":true}]};
+const PRED={"as_of":"2026-05-08","longs":[{"ticker":"FCX","price":61.65,"rank":1,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"strong intermediate momentum","mag":0.274},{"text":"high downside volatility","mag":0.061}]},{"ticker":"SCCO","price":185.29,"rank":2,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"richly valued on book","mag":0.155},{"text":"strong intermediate momentum","mag":0.106}]},{"ticker":"GDXU","price":203.99,"rank":3,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"strong intermediate momentum","mag":0.451},{"text":"below 3-month highs","mag":0.398}]},{"ticker":"STX","price":782.64,"rank":4,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"richly valued on book","mag":0.107},{"text":"cash-heavy balance sheet","mag":0.075}]},{"ticker":"TER","price":359.77,"rank":5,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"strong intermediate momentum","mag":0.241},{"text":"not diluting / buying back","mag":0.171}]},{"ticker":"MU","price":746.81,"rank":6,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"very liquid","mag":0.288},{"text":"richly valued on book","mag":0.139}]},{"ticker":"WDC","price":480.0,"rank":7,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"strong intermediate momentum","mag":0.13},{"text":"richly valued on book","mag":0.097}]},{"ticker":"LRCX","price":294.05,"rank":8,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"richly valued on book","mag":0.192},{"text":"strong intermediate momentum","mag":0.146}]},{"ticker":"LITE","price":903.8,"rank":9,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"very liquid","mag":0.273},{"text":"strong intermediate momentum","mag":0.177}]},{"ticker":"AEM","price":193.21,"rank":10,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"strong intermediate momentum","mag":0.446},{"text":"richly valued on book","mag":0.362}]},{"ticker":"TPR","price":133.48,"rank":11,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"strong intermediate momentum","mag":0.994},{"text":"not diluting / buying back","mag":0.967}]},{"ticker":"NEM","price":116.51,"rank":12,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"strong intermediate momentum","mag":0.219},{"text":"not diluting / buying back","mag":0.086}]},{"ticker":"ALB","price":203.52,"rank":13,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"strong intermediate momentum","mag":0.19},{"text":"cash-heavy balance sheet","mag":0.073}]},{"ticker":"KLAC","price":1869.19,"rank":14,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"richly valued on book","mag":0.289},{"text":"high downside volatility","mag":0.131}]},{"ticker":"UAL","price":99.58,"rank":15,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"high downside volatility","mag":0.088},{"text":"elevated 3-month volatility","mag":0.053}]}],"shorts":[{"ticker":"TRI","price":92.94,"rank":1,"drivers":[{"text":"weak 6-month momentum","mag":1.0},{"text":"high stock-specific risk","mag":0.998},{"text":"frequent drawdowns","mag":0.323}]},{"ticker":"EA","price":200.44,"rank":2,"drivers":[{"text":"calm recent trading","mag":1.0},{"text":"calm long-run volatility","mag":0.676},{"text":"high gross profitability","mag":0.496}]},{"ticker":"MDB","price":299.47,"rank":3,"drivers":[{"text":"high stock-specific risk","mag":1.0},{"text":"weak 6-month momentum","mag":0.746},{"text":"conservatively financed","mag":0.402}]},{"ticker":"FSLR","price":219.95,"rank":4,"drivers":[{"text":"high stock-specific risk","mag":1.0},{"text":"conservatively financed","mag":0.523},{"text":"not diluting / buying back","mag":0.174}]},{"ticker":"RVMD","price":141.81,"rank":5,"drivers":[{"text":"high stock-specific risk","mag":1.0},{"text":"weak cash generation","mag":0.603},{"text":"conservatively financed","mag":0.472}]},{"ticker":"VEEV","price":166.34,"rank":6,"drivers":[{"text":"weak 6-month momentum","mag":1.0},{"text":"high stock-specific risk","mag":0.92},{"text":"conservatively financed","mag":0.779}]},{"ticker":"VICI","price":28.84,"rank":7,"drivers":[{"text":"calmer than size peers","mag":1.0},{"text":"conservatively financed","mag":0.448},{"text":"low market beta","mag":0.22}]},{"ticker":"ORLY","price":92.96,"rank":8,"drivers":[{"text":"diluting its share count","mag":1.0},{"text":"high gross profitability","mag":0.407},{"text":"low market beta","mag":0.288}]},{"ticker":"INTU","price":396.31,"rank":9,"drivers":[{"text":"high stock-specific risk","mag":1.0},{"text":"weak 6-month momentum","mag":0.51},{"text":"fading intermediate momentum","mag":0.288}]},{"ticker":"SNOW","price":152.45,"rank":10,"drivers":[{"text":"high stock-specific risk","mag":1.0},{"text":"weak 6-month momentum","mag":0.777},{"text":"frequent drawdowns","mag":0.353}]},{"ticker":"NTRA","price":194.24,"rank":11,"drivers":[{"text":"high stock-specific risk","mag":1.0},{"text":"expensive on sales","mag":0.955},{"text":"conservatively financed","mag":0.554}]},{"ticker":"ZS","price":152.13,"rank":12,"drivers":[{"text":"high stock-specific risk","mag":1.0},{"text":"weak 6-month momentum","mag":0.954},{"text":"frequent drawdowns","mag":0.358}]},{"ticker":"EQT","price":55.96,"rank":13,"drivers":[{"text":"conservatively financed","mag":1.0},{"text":"low market beta","mag":0.485},{"text":"low stock-specific noise","mag":0.342}]},{"ticker":"AXON","price":403.54,"rank":14,"drivers":[{"text":"high stock-specific risk","mag":1.0},{"text":"weak 6-month momentum","mag":0.771},{"text":"not diluting / buying back","mag":0.263}]},{"ticker":"NTES","price":115.91,"rank":15,"drivers":[{"text":"conservatively financed","mag":1.0},{"text":"expensive on sales","mag":0.847},{"text":"low market beta","mag":0.737}]}]};
+(function(){
+  const S=HIST.series, N=S.length, hold0=S.findIndex(r=>r.holdout);
+  const fmtM=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const pct=(x,d)=> (x>=0?"+":"")+(100*x).toFixed(d===undefined?1:d)+"%";
+
+  const eqM=[],eqK=[]; let a=1,b=1;
+  for(const r of S){a*=1+r.model;b*=1+r.mkt;eqM.push(a);eqK.push(b);}
+  const dd=[]; let pk=0;
+  for(const v of eqM){pk=Math.max(pk,v);dd.push(v/pk-1);}
+  const mm=S.map(r=>r.model),kk=S.map(r=>r.mkt);
+  const mu=v=>v.reduce((s,x)=>s+x,0)/v.length;
+  const mM=mu(mm),mK=mu(kk);
+  let cxy=0,cx=0,cy=0;
+  for(let i=0;i<N;i++){cxy+=(mm[i]-mM)*(kk[i]-mK);cx+=(mm[i]-mM)**2;cy+=(kk[i]-mK)**2;}
+  const corr=cxy/Math.sqrt(cx*cy);
+
+  document.getElementById("asof").textContent="AS OF "+new Date(PRED.as_of+"T00:00:00")
+    .toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"}).toUpperCase();
+  document.getElementById("mhist").textContent=N;
+  const H=HIST.holdout,D=HIST.dev;
+  document.getElementById("stats").innerHTML=[
+    ["Net annual (holdout)",pct(H.ann),"2024-26, out-of-sample","up"],
+    ["Sharpe (holdout)",H.sharpe.toFixed(2),"monthly, annualized","up"],
+    ["Correlation to S&P",corr.toFixed(2),"monthly returns, 2016-26",""],
+    ["Max drawdown",pct(Math.min(...dd)),"worst peak-to-trough","dn"],
+  ].map(t=>'<div class="stat"><div class="k">'+t[0]+'</div><div class="v '+t[3]+'">'+t[1]+'</div><div class="n">'+t[2]+'</div></div>').join("");
+  document.getElementById("devline").textContent=pct(D.ann)+" a year at Sharpe "+D.sharpe.toFixed(2);
+  document.getElementById("holdline").textContent=pct(H.ann)+" at Sharpe "+H.sharpe.toFixed(2);
+
+  function makeChart(el,tipEl,H_,ylo,yhi,draw,tipFmt){
+    const W=960,PL=46,PR=14,PT=14,PB=26,IW=W-PL-PR,IH=H_-PT-PB;
+    const x=i=>PL+IW*i/(N-1), y=v=>PT+IH*(1-(v-ylo)/(yhi-ylo));
+    let s='<svg viewBox="0 0 '+W+' '+H_+'" role="img">';
+    s+='<rect x="'+x(hold0)+'" y="'+PT+'" width="'+(x(N-1)-x(hold0))+'" height="'+IH+'" fill="#0E6151" opacity="0.055"/>';
+    s+='<line x1="'+x(hold0)+'" y1="'+PT+'" x2="'+x(hold0)+'" y2="'+(PT+IH)+'" stroke="#0E6151" stroke-width="1" stroke-dasharray="3 3" opacity=".5"/>';
+    const step=(yhi-ylo)/4;
+    for(let g=0;g<=4;g++){const v=ylo+g*step,yy=y(v);
+      s+='<line x1="'+PL+'" y1="'+yy+'" x2="'+(W-PR)+'" y2="'+yy+'" stroke="#E1E4DE" stroke-width="1"/>';
+      s+='<text x="'+(PL-8)+'" y="'+(yy+3)+'" text-anchor="end" font-size="10" fill="#55605A" font-family="ui-monospace,Consolas,monospace">'+tipFmt.axis(v)+'</text>';}
+    for(let i=0;i<N;i++){const d=S[i].d;
+      if(d.slice(5,7)<="01"&&+d.slice(0,4)%2===0&&(i===0||S[i-1].d.slice(0,4)!==d.slice(0,4))){
+        s+='<text x="'+x(i)+'" y="'+(H_-8)+'" text-anchor="middle" font-size="10" fill="#55605A" font-family="ui-monospace,Consolas,monospace">'+d.slice(0,4)+'</text>';}}
+    s+=draw(x,y);
+    s+='<text x="'+(x(hold0)+6)+'" y="'+(PT+12)+'" font-size="9.5" fill="#0E6151" font-family="ui-monospace,Consolas,monospace" letter-spacing="1">SEALED HOLDOUT &#8594;</text>';
+    s+='<line id="'+el.id+'-cx" x1="0" y1="'+PT+'" x2="0" y2="'+(PT+IH)+'" stroke="#17211D" stroke-width="1" opacity="0"/>';
+    s+='<g id="'+el.id+'-dots"></g>';
+    s+='<rect x="'+PL+'" y="'+PT+'" width="'+IW+'" height="'+IH+'" fill="transparent" id="'+el.id+'-hit"/></svg>';
+    el.insertAdjacentHTML("beforeend",s);
+    const svg=el.querySelector("svg"),hit=document.getElementById(el.id+"-hit"),
+          cxl=document.getElementById(el.id+"-cx"),dots=document.getElementById(el.id+"-dots"),tip=tipEl;
+    function move(ev){
+      const r=svg.getBoundingClientRect(),sx=W/r.width;
+      const px=(ev.clientX-r.left)*sx;
+      const i=Math.max(0,Math.min(N-1,Math.round((px-PL)/(IW/(N-1)))));
+      cxl.setAttribute("x1",x(i));cxl.setAttribute("x2",x(i));cxl.setAttribute("opacity",".35");
+      dots.innerHTML=tipFmt.dots(i,x,y);
+      tip.innerHTML=tipFmt.text(i);
+      tip.style.opacity=1;
+      const tw=tip.offsetWidth, left=x(i)/sx+(x(i)/W>0.72?-tw-14:14);
+      tip.style.left=left+"px"; tip.style.top=(y(tipFmt.anchor(i))/sx-10)+"px";
+    }
+    hit.addEventListener("mousemove",move);
+    hit.addEventListener("mouseleave",()=>{tip.style.opacity=0;cxl.setAttribute("opacity","0");dots.innerHTML="";});
+  }
+  const line=(pts,x,y,col,wd)=>'<path d="M'+pts.map((v,i)=>x(i).toFixed(1)+" "+y(v).toFixed(1)).join("L")+'" fill="none" stroke="'+col+'" stroke-width="'+wd+'" stroke-linejoin="round"/>';
+  const dot=(i,v,x,y,col)=>'<circle cx="'+x(i)+'" cy="'+y(v)+'" r="4" fill="'+col+'" stroke="#F8F9F6" stroke-width="2"/>';
+  const dstr=i=>{const d=S[i].d;return fmtM[+d.slice(5,7)-1]+" "+d.slice(0,4);};
+
+  const yhiE=Math.max(...eqK,...eqM)*1.06, yloE=Math.min(...eqK,...eqM,1)*0.94;
+  makeChart(document.getElementById("eqchart"),document.getElementById("eqtip"),400,yloE,yhiE,
+    (x,y)=>{
+      let s=line(eqK,x,y,"#2a78d6",2)+line(eqM,x,y,"#0a8a68",2.5);
+      const gap=Math.abs(y(eqM[N-1])-y(eqK[N-1]))<16?8:0;
+      s+='<text x="'+(x(N-1)-4)+'" y="'+(y(eqM[N-1])-7-gap)+'" text-anchor="end" font-size="10.5" font-weight="600" fill="#0a8a68" font-family="ui-monospace,Consolas,monospace">MODEL $'+eqM[N-1].toFixed(2)+'</text>';
+      s+='<text x="'+(x(N-1)-4)+'" y="'+(y(eqK[N-1])-7+gap)+'" text-anchor="end" font-size="10.5" font-weight="600" fill="#2a78d6" font-family="ui-monospace,Consolas,monospace">S&amp;P EW $'+eqK[N-1].toFixed(2)+'</text>';
+      return s;
+    },
+    {axis:v=>"$"+v.toFixed(1),
+     anchor:i=>eqM[i],
+     dots:(i,x,y)=>dot(i,eqM[i],x,y,"#0a8a68")+dot(i,eqK[i],x,y,"#2a78d6"),
+     text:i=>'<span class="d">'+dstr(i)+(S[i].holdout?" · holdout":"")+'</span><br>Model <b>$'+eqM[i].toFixed(2)+'</b> ('+pct(S[i].model)+' mo)<br>S&amp;P EW <b>$'+eqK[i].toFixed(2)+'</b>'});
+
+  const yloD=Math.min(...dd)*1.15;
+  makeChart(document.getElementById("ddchart"),document.getElementById("ddtip"),170,yloD,0,
+    (x,y)=>{
+      let p="M"+x(0)+" "+y(0);
+      dd.forEach((v,i)=>p+="L"+x(i).toFixed(1)+" "+y(v).toFixed(1));
+      p+="L"+x(N-1)+" "+y(0)+"Z";
+      return '<path d="'+p+'" fill="#A0492F" opacity=".16"/>'+line(dd,x,y,"#A0492F",1.6);
+    },
+    {axis:v=>(100*v).toFixed(0)+"%",
+     anchor:i=>dd[i],
+     dots:(i,x,y)=>dot(i,dd[i],x,y,"#A0492F"),
+     text:i=>'<span class="d">'+dstr(i)+'</span><br>Drawdown <b>'+pct(dd[i])+'</b>'});
+
+  const years={};
+  S.forEach(r=>{const yy=r.d.slice(0,4);(years[yy]=years[yy]||{})[+r.d.slice(5,7)]=r.model;});
+  const mix=(v)=>{ // tint toward pine (gain) or clay (loss), capped at |4%|
+    if(v===undefined)return"";
+    const t=Math.min(Math.abs(v)/0.04,1)*0.40;
+    const c=v>=0?"10,138,104":"160,73,47";
+    return"background:rgba("+c+","+t.toFixed(3)+")";
+  };
+  let h="<thead><tr><th>Year</th>"+fmtM.map(m=>"<th>"+m+"</th>").join("")+"<th>Year</th></tr></thead><tbody>";
+  Object.keys(years).sort().forEach(yy=>{
+    let tot=1;
+    h+="<tr><td>"+yy+(+yy>=2024?'<span class="hbadge">OOS</span>':"")+"</td>";
+    for(let m=1;m<=12;m++){const v=years[yy][m];
+      if(v!==undefined)tot*=1+v;
+      h+='<td style="'+mix(v)+'" title="'+(v===undefined?"":fmtM[m-1]+" "+yy+": "+pct(v,2))+'">'+(v===undefined?"·":pct(v).replace("%",""))+"</td>";}
+    h+='<td class="yr" style="'+mix((tot-1)/6)+'">'+pct(tot-1)+"</td></tr>";
+  });
+  document.getElementById("hm").innerHTML=h+"</tbody>";
+
+  const fmt$=p=>"$"+p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  const row=p=>{
+    const drv=p.drivers.map(d=>'<div class="tag"><span class="b" style="width:'+(8+d.mag*44).toFixed(0)+'px"></span><span>'+d.text+"</span></div>").join("");
+    return '<div class="pick"><span class="rk">'+String(p.rank).padStart(2,"0")+'</span><div><div class="hd"><span class="tk">'+p.ticker+'</span><span class="px">'+fmt$(p.price)+'</span></div><div class="drv">'+drv+"</div></div></div>";
+  };
+  document.getElementById("longcol").insertAdjacentHTML("beforeend",PRED.longs.map(row).join(""));
+  document.getElementById("shortcol").insertAdjacentHTML("beforeend",PRED.shorts.map(row).join(""));
+})();
+</script>

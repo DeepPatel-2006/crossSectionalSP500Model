@@ -1,0 +1,286 @@
+<style>
+  :root{
+    --paper:#F3F4F1; --panel:#F8F9F6; --ink:#17211D; --ink-soft:#303A34;
+    --muted:#55605A; --line:#DBDFDA; --line-soft:#E7EAE5;
+    --pine:#0E6151; --pine-soft:#EAF2EE; --clay:#A0492F; --clay-soft:#F5EBE6;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;line-height:1.6;font-feature-settings:"tnum" 1;}
+  .wrap{max-width:880px;margin:0 auto;padding:clamp(2.4rem,6vw,5rem) clamp(1.25rem,5vw,2.5rem) 4rem;}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--pine);display:flex;align-items:center;gap:.7rem;margin:0 0 1.5rem;}
+  .eyebrow::before{content:"";width:26px;height:1px;background:var(--pine);display:inline-block;}
+  h1{font-size:clamp(2.1rem,5.4vw,3.35rem);line-height:1.04;letter-spacing:-.022em;font-weight:680;margin:0 0 1.1rem;text-wrap:balance;max-width:15ch;}
+  .thesis{font-size:clamp(1.05rem,2.3vw,1.2rem);color:var(--ink-soft);max-width:60ch;margin:0 0 1.8rem;line-height:1.55;}
+  .thesis b{color:var(--pine);font-weight:600;}
+  .stack{display:flex;flex-wrap:wrap;gap:.4rem;font-family:var(--mono);font-size:.74rem;}
+  .stack span{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:.28rem .6rem;border-radius:2px;letter-spacing:.02em;}
+
+  .metrics{margin:2.8rem 0 0;border:1px solid var(--line);background:var(--line);display:grid;grid-template-columns:repeat(4,1fr);gap:1px;border-radius:4px;overflow:hidden;}
+  .cell{background:var(--panel);padding:1.15rem 1.2rem 1.25rem;display:flex;flex-direction:column;gap:.35rem;}
+  .cell .lab{font-family:var(--mono);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
+  .cell .val{font-family:var(--mono);font-size:clamp(1.5rem,3.4vw,1.95rem);font-weight:500;letter-spacing:-.01em;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1;}
+  .cell .val.pos{color:var(--pine);}
+  .cell .sub{font-family:var(--mono);font-size:.66rem;color:var(--muted);letter-spacing:.03em;}
+  .status{display:inline-flex;align-items:center;gap:.4rem;}
+  .status::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--pine);box-shadow:0 0 0 3px var(--pine-soft);}
+
+  section{margin-top:3.4rem;}
+  .sec-head{font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding-bottom:.7rem;border-bottom:1px solid var(--line);margin:0 0 .3rem;}
+
+  .ledger{display:flex;flex-direction:column;}
+  .item{display:grid;grid-template-columns:170px 1fr;gap:1.4rem;padding:1.5rem 0;border-bottom:1px solid var(--line-soft);}
+  .item:last-child{border-bottom:none;}
+  .item .tag{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--pine);padding-top:.2rem;}
+  .item h3{margin:0 0 .5rem;font-size:1.14rem;font-weight:640;letter-spacing:-.01em;}
+  .item p{margin:0;color:var(--ink-soft);font-size:.97rem;max-width:56ch;}
+  .item p .k{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink);background:var(--pine-soft);padding:.02rem .3rem;border-radius:2px;font-size:.86em;white-space:nowrap;}
+
+  /* factor model bench */
+  .lead{font-size:.97rem;color:var(--ink-soft);max-width:64ch;margin:.9rem 0 0;}
+  .lead b{color:var(--pine);font-weight:600;}
+  .bench{margin-top:1.3rem;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--panel);}
+  .bhead{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:.7rem 1.1rem;border-bottom:1px solid var(--line);background:var(--paper);}
+  .frow{display:grid;grid-template-columns:26px 1.6fr repeat(3,1fr);align-items:center;gap:.5rem;padding:.5rem 1.1rem;border-bottom:1px solid var(--line-soft);cursor:pointer;font-size:.86rem;}
+  .frow:hover{background:var(--paper);}
+  .frow input{accent-color:var(--pine);width:15px;height:15px;cursor:pointer;}
+  .frow .fn{color:var(--ink);font-weight:500;}
+  .frow .fn small{color:var(--muted);font-weight:400;font-family:var(--mono);font-size:.72em;}
+  .frow .fs{font-family:var(--mono);font-size:.82rem;text-align:right;color:var(--ink-soft);font-variant-numeric:tabular-nums;}
+  .frow .fs.dim{color:var(--muted);}
+  .fmhd{display:grid;grid-template-columns:26px 1.6fr repeat(3,1fr);gap:.5rem;padding:.45rem 1.1rem;font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);}
+  .fmhd span:not(:first-child):not(:nth-child(2)){text-align:right;}
+
+  .opts{display:flex;flex-wrap:wrap;gap:1.3rem;align-items:center;padding:.9rem 1.1rem;border-bottom:1px solid var(--line);background:var(--paper);}
+  .opt{display:flex;align-items:center;gap:.55rem;font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:3px;overflow:hidden;}
+  .seg button{font-family:var(--mono);font-size:.72rem;background:var(--panel);color:var(--ink-soft);border:none;padding:.32rem .6rem;cursor:pointer;}
+  .seg button[aria-pressed=true]{background:var(--pine);color:#fff;}
+  .opt input[type=range]{width:96px;accent-color:var(--pine);height:4px;}
+  .opt output{font-family:var(--mono);color:var(--ink);font-size:.75rem;}
+  .runbtn{margin-left:auto;font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;background:var(--panel);color:var(--pine);border:1px solid var(--pine);padding:.4rem .8rem;border-radius:3px;cursor:pointer;}
+  .runbtn:hover{background:var(--pine-soft);}
+  button:focus-visible,input:focus-visible{outline:2px solid var(--pine);outline-offset:2px;}
+
+  .model{padding:1.3rem 1.1rem 1.4rem;}
+  .msum{font-size:.9rem;color:var(--ink-soft);margin:0 0 1.1rem;line-height:1.5;}
+  .msum .good{color:var(--pine);font-weight:600;} .msum .warn{color:var(--clay);font-weight:600;}
+  .mstats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden;margin-bottom:1.2rem;}
+  .ms{background:var(--panel);padding:.85rem .9rem;}
+  .ms .l{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.25rem;}
+  .ms .v{font-family:var(--mono);font-size:1.35rem;font-weight:500;font-variant-numeric:tabular-nums;color:var(--ink);line-height:1;}
+  .ms .v.hero{color:var(--pine);}
+  .chartwrap{border:1px solid var(--line);border-radius:3px;padding:.6rem .2rem .2rem;background:var(--paper);}
+  .chartcap{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;letter-spacing:.05em;color:var(--muted);padding:0 .8rem .5rem;}
+  .redun{font-family:var(--mono);font-size:.72rem;margin-top:1rem;padding:.55rem .8rem;border-radius:3px;}
+  .redun.ok{background:var(--pine-soft);color:var(--pine);} .redun.flag{background:var(--clay-soft);color:var(--clay);}
+  .assume{font-family:var(--mono);font-size:.62rem;color:var(--muted);margin-top:1rem;letter-spacing:.02em;}
+
+  .verdicts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden;margin-top:1.2rem;}
+  .vcol{background:var(--panel);padding:1.3rem 1.4rem;}
+  .vhead{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:.5rem;margin-bottom:.9rem;}
+  .vhead.ok{color:var(--pine);} .vhead.no{color:var(--clay);}
+  .vhead::before{content:"";width:9px;height:9px;border-radius:2px;}
+  .vhead.ok::before{background:var(--pine);} .vhead.no::before{background:var(--clay);}
+  .vlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.55rem;}
+  .vlist li{font-size:.92rem;color:var(--ink-soft);display:flex;gap:.55rem;align-items:baseline;}
+  .vlist li::before{font-family:var(--mono);font-size:.8rem;flex:none;}
+  .vcol.ok .vlist li::before{content:"↑";color:var(--pine);} .vcol.no .vlist li::before{content:"×";color:var(--clay);}
+  .vnote{font-family:var(--mono);font-size:.66rem;color:var(--muted);margin-top:1rem;letter-spacing:.02em;}
+
+  footer{margin-top:3.6rem;padding-top:1.4rem;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:.8rem 1.4rem;align-items:center;justify-content:space-between;}
+  footer .note{font-family:var(--mono);font-size:.7rem;color:var(--muted);letter-spacing:.03em;}
+  footer .note b{color:var(--ink-soft);font-weight:500;}
+
+  .reveal{opacity:0;transform:translateY(14px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;}
+  .reveal:nth-child(2){animation-delay:.06s}.reveal:nth-child(3){animation-delay:.12s}.reveal:nth-child(4){animation-delay:.18s}.reveal:nth-child(5){animation-delay:.24s}
+  @keyframes rise{to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.reveal{animation:none;opacity:1;transform:none}}
+  @media (max-width:640px){
+    .metrics{grid-template-columns:repeat(2,1fr);}
+    .item{grid-template-columns:1fr;gap:.5rem;}.item .tag{padding-top:0;}
+    .verdicts{grid-template-columns:1fr;} .mstats{grid-template-columns:repeat(2,1fr);}
+    .frow,.fmhd{grid-template-columns:22px 1.4fr repeat(3,1fr);font-size:.78rem;}
+  }
+</style>
+
+<main class="wrap">
+  <header>
+    <div class="eyebrow reveal">Equity Factor Research · Python / LightGBM</div>
+    <h1 class="reveal">Quantitative Equity Factor Research Platform</h1>
+    <p class="thesis reveal">A point-in-time, survivorship-free pipeline for discovering equity return factors:
+      engineered to <b>reject false signals as rigorously as it confirms real ones.</b></p>
+    <div class="stack reveal"><span>Python</span><span>pandas</span><span>NumPy</span><span>LightGBM</span><span>PyArrow</span><span>Parquet</span><span>statsmodels</span></div>
+  </header>
+
+  <div class="metrics reveal" role="group" aria-label="Headline results">
+    <div class="cell"><div class="lab">OOS Rank IC</div><div class="val pos">+0.019</div><div class="sub">held-out</div></div>
+    <div class="cell"><div class="lab">Long-Short Sharpe</div><div class="val">0.67</div><div class="sub">decile spread</div></div>
+    <div class="cell"><div class="lab">Equity Universe</div><div class="val">~9,000</div><div class="sub">US, survivor-free</div></div>
+    <div class="cell"><div class="lab">Holdout</div><div class="val" style="font-size:1.35rem"><span class="status">Passed</span></div><div class="sub">signal confirmed</div></div>
+  </div>
+
+  <section>
+    <p class="sec-head">Capabilities</p>
+    <div class="ledger">
+      <article class="item"><div class="tag">Data Pipeline</div><div><h3>Point-in-time infrastructure</h3>
+        <p>Survivorship-bias-free coverage of roughly 9,000 US equities with strict as-of-date gating on fundamentals, backed by Parquet columnar storage, so every backtest sees only what was knowable at the time.</p></div></article>
+      <article class="item"><div class="tag">Factor Validation</div><div><h3>Signal, net of costs</h3>
+        <p>Validated a 12-1 cross-sectional momentum factor with a volatility-managed overlay against Ken French's UMD benchmark; characterized additional factors (short-term reversal, profitability) as non-viable once transaction costs were charged.</p></div></article>
+      <article class="item"><div class="tag">Machine Learning</div><div><h3>A ranking model, honestly tested</h3>
+        <p>Trained a LightGBM stock-ranking model on engineered momentum features. A locked out-of-sample holdout confirmed genuine predictive signal: <span class="k">rank IC +0.019</span>, <span class="k">long-short Sharpe 0.67</span>.</p></div></article>
+      <article class="item"><div class="tag">Statistical Engine</div><div><h3>Guarding against data-mining</h3>
+        <p>Built a feature-evaluation engine using Newey-West HAC t-statistics, Benjamini-Hochberg FDR correction, decile-spread analysis, and IC-based redundancy clustering, so a factor has to survive multiple-testing correction before it is trusted.</p></div></article>
+    </div>
+  </section>
+
+  <section id="bench-sec">
+    <p class="sec-head">Factor Model Bench · Live</p>
+    <p class="lead">Test factors and build a model, live. Each factor is scored on a synthetic equity panel with the
+      platform's own engine: cross-sectional rank-IC, Newey-West HAC t-stats, decile long-short Sharpe.
+      <b>Check factors to assemble a model</b> and watch the composite's in-sample and out-of-sample performance,
+      cost drag, and factor redundancy update.</p>
+    <div class="bench">
+      <div class="fmhd"><span></span><span>Factor</span><span>Mean IC</span><span>HAC t</span><span>Decile Sh</span></div>
+      <div id="fmenu"></div>
+      <div class="opts">
+        <div class="opt">Weighting
+          <span class="seg" role="group" aria-label="Weighting"><button type="button" id="weq" aria-pressed="true">Equal</button><button type="button" id="wic" aria-pressed="false">IC-weighted</button></span>
+        </div>
+        <div class="opt"><label for="cs2">Cost bps</label><input type="range" id="cs2" min="0" max="40" step="1" value="8"><output id="cs2v">8</output></div>
+        <button type="button" class="runbtn" id="resample">↻ Re-sample market</button>
+      </div>
+      <div class="model">
+        <p class="msum" id="msum"></p>
+        <div class="mstats">
+          <div class="ms"><span class="l">Model rank IC</span><span class="v hero" id="mIC">—</span></div>
+          <div class="ms"><span class="l">In-sample Sharpe</span><span class="v" id="mIS">—</span></div>
+          <div class="ms"><span class="l">Out-of-sample Sharpe</span><span class="v" id="mOOS">—</span></div>
+          <div class="ms"><span class="l">Net (after cost)</span><span class="v" id="mNET">—</span></div>
+        </div>
+        <div class="chartwrap">
+          <div class="chartcap"><span>Cumulative long-short return · model</span><span id="splitlab">train | holdout</span></div>
+          <div id="eq"></div>
+        </div>
+        <div class="redun ok" id="redun">No redundant factors selected.</div>
+        <p class="assume">Synthetic Monte-Carlo panel · same rank-IC / Newey-West / decile / OOS-split engine used on live market data · not a live-data feed</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-head">Factor Verdicts</p>
+    <div class="verdicts">
+      <div class="vcol ok"><div class="vhead ok">Validated</div><ul class="vlist">
+        <li>12-1 momentum, volatility-managed: outperforms the UMD benchmark</li>
+        <li>LightGBM rank model: out-of-sample holdout confirmed</li></ul></div>
+      <div class="vcol no"><div class="vhead no">Non-viable after costs</div><ul class="vlist">
+        <li>Short-term reversal: edge does not survive transaction costs</li>
+        <li>Profitability factor: no net signal after correction</li></ul>
+        <p class="vnote">Rejected on evidence, not omitted.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="note"><b>Single-author research project.</b> Discovery → validation → out-of-sample confirmation.</div>
+    <div class="note">HAC · FDR · locked holdout</div>
+  </footer>
+</main>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var N=220,T=132,SEED=20240611,WMODE='eq',A=null;
+  var DEF=[
+    {n:'Momentum',t:'12-1'},{n:'Momentum',t:'6-1 · overlaps 12-1'},{n:'Value',t:'book/market'},
+    {n:'Quality',t:'return on equity'},{n:'Low Volatility',t:'trailing vol'},{n:'Size',t:'log market cap'},
+    {n:'Noise A',t:'random'},{n:'Noise B',t:'random'}];
+  var DEFAULT_SEL=[0,2,3,4,5];
+  function mul(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  var _sp=null;function randn(r){if(_sp!==null){var s=_sp;_sp=null;return s;}var u=0,v=0;while(u===0)u=r();while(v===0)v=r();var m=Math.sqrt(-2*Math.log(u));_sp=m*Math.sin(6.283185*v);return m*Math.cos(6.283185*v);}
+  function ranks(a){var n=a.length,ix=new Array(n),i;for(i=0;i<n;i++)ix[i]=i;ix.sort(function(x,y){return a[x]-a[y];});var rk=new Float64Array(n);for(i=0;i<n;i++)rk[ix[i]]=i;return rk;}
+  function pear(x,y){var n=x.length,mx=0,my=0,i;for(i=0;i<n;i++){mx+=x[i];my+=y[i];}mx/=n;my/=n;var a=0,b=0,c=0;for(i=0;i<n;i++){var dx=x[i]-mx,dy=y[i]-my;a+=dx*dy;b+=dx*dx;c+=dy*dy;}var d=Math.sqrt(b*c);return d>0?a/d:0;}
+  function hac(ic){var n=ic.length,m=0,i;for(i=0;i<n;i++)m+=ic[i];m/=n;var L=Math.max(1,Math.round(1.5*Math.pow(n,1/3))),e=new Float64Array(n);for(i=0;i<n;i++)e[i]=ic[i]-m;var g=0;for(i=0;i<n;i++)g+=e[i]*e[i];g/=n;var v=g;for(var l=1;l<=L;l++){var gl=0;for(i=l;i<n;i++)gl+=e[i]*e[i-l];gl/=n;v+=2*(1-l/(L+1))*gl;}var se=Math.sqrt(v/n);return{mean:m,t:se>0?m/se:0};}
+  function sharpe(a,s,e){var m=0,i,n=0;for(i=s;i<e;i++){m+=a[i];n++;}m/=n;var v=0;for(i=s;i<e;i++)v+=(a[i]-m)*(a[i]-m);v/=n;return v>0?m/Math.sqrt(v)*Math.sqrt(12):0;}
+
+  function gen(){
+    var r=mul(SEED),F=8,Z=[],i,f,t;for(f=0;f<F;f++)Z.push([]);var RET=[],RR=[];
+    for(t=0;t<T;t++){
+      var b=[];for(f=0;f<F;f++){var z=new Float64Array(N);for(i=0;i<N;i++)z[i]=randn(r);b.push(z);}
+      for(i=0;i<N;i++)b[1][i]=0.85*b[0][i]+0.5268*b[1][i];               // momentum-6m overlaps 12-1
+      var ret=new Float64Array(N);
+      for(i=0;i<N;i++)ret[i]=0.055*b[0][i]+0.042*b[2][i]+0.032*b[3][i]+0.030*b[4][i]+0.020*b[5][i]+0.9946*randn(r);
+      for(f=0;f<F;f++)Z[f].push(b[f]);RET.push(ret);RR.push(ranks(ret));
+    }
+    var stats=[],IC=[];for(f=0;f<F;f++){var ic=new Float64Array(T);for(t=0;t<T;t++)ic[t]=pear(ranks(Z[f][t]),RR[t]);IC.push(ic);var h=hac(ic);var d=decile(function(tt){return Z[f][tt];},0);stats.push({mic:h.mean,t:h.t,sh:sharpe(d.net,0,T)});}
+    // exposure correlation matrix (avg cross-sectional)
+    var EC=[];for(f=0;f<F;f++){EC.push([]);for(var g=0;g<F;g++){var c=0;for(t=0;t<T;t++)c+=pear(Z[f][t],Z[g][t]);EC[f].push(c/T);}}
+    A={Z:Z,RET:RET,RR:RR,stats:stats,IC:IC,EC:EC};
+  }
+  function decile(scoreAt,cost){
+    var q=Math.max(2,Math.round(N/10)),sp=new Float64Array(T),net=new Float64Array(T),pt={},pb={},t,i;
+    for(t=0;t<T;t++){var sc=scoreAt(t),ix=new Array(N);for(i=0;i<N;i++)ix[i]=i;ix.sort(function(a,b){return sc[b]-sc[a];});
+      var tr=0,br=0;for(i=0;i<q;i++){tr+=A.RET[t][ix[i]];br+=A.RET[t][ix[N-1-i]];}tr/=q;br/=q;sp[t]=tr-br;
+      var ct={},cb={};for(i=0;i<q;i++){ct[ix[i]]=1;cb[ix[N-1-i]]=1;}
+      var ch=0;for(var k in ct)if(!pt[k])ch++;for(k in cb)if(!pb[k])ch++;var turn=t===0?0:ch/(2*q);
+      net[t]=sp[t]-2*turn*cost/10000;pt=ct;pb=cb;}
+    return{sp:sp,net:net};
+  }
+  function chart(net){
+    var eq=[],c=1,i;for(i=0;i<net.length;i++){c*=(1+net[i]);eq.push(c);}
+    var mn=Math.min.apply(null,eq),mx=Math.max.apply(null,eq),pad=(mx-mn)*0.12||0.05;mn-=pad;mx+=pad;
+    var X=function(j){return (j/(eq.length-1)*100).toFixed(2);},Y=function(v){return (30-(v-mn)/(mx-mn)*28-1).toFixed(2);};
+    var ln='';for(i=0;i<eq.length;i++)ln+=(i?'L':'M')+X(i)+' '+Y(eq[i])+' ';
+    var split=Math.floor(eq.length*0.6),sx=X(split);
+    var one=Y(1);
+    return '<svg viewBox="0 0 100 32" preserveAspectRatio="none" style="width:100%;height:148px;display:block" role="img" aria-label="Model cumulative long-short return">'+
+      '<rect x="'+sx+'" y="0" width="'+(100-sx)+'" height="32" fill="var(--pine-soft)" opacity="0.5"/>'+
+      '<line x1="0" y1="'+one+'" x2="100" y2="'+one+'" stroke="var(--line)" stroke-width="0.4"/>'+
+      '<path d="'+ln+'L100 31 L0 31 Z" fill="var(--pine-soft)"/>'+
+      '<path d="'+ln+'" fill="none" stroke="var(--pine)" stroke-width="1" vector-effect="non-scaling-stroke"/>'+
+      '<circle cx="'+X(eq.length-1)+'" cy="'+Y(eq[eq.length-1])+'" r="1.5" fill="var(--pine)" vector-effect="non-scaling-stroke"/></svg>';
+  }
+  function selected(){var s=[];document.querySelectorAll('#fmenu input:checked').forEach(function(c){s.push(+c.dataset.f);});return s;}
+  function model(){
+    var sel=selected(),cost=+$('cs2').value,split=Math.floor(T*0.6),f,i,t;
+    if(!sel.length){$('mIC').textContent='—';$('mIS').textContent='—';$('mOOS').textContent='—';$('mNET').textContent='—';$('eq').innerHTML='';$('msum').innerHTML='Select one or more factors to build a model.';$('redun').className='redun ok';$('redun').textContent='No factors selected.';return;}
+    var w={};sel.forEach(function(f){if(WMODE==='ic'){var m=0;for(t=0;t<split;t++)m+=A.IC[f][t];w[f]=Math.max(m/split,0);}else w[f]=1;});
+    var scoreAt=function(t){var sc=new Float64Array(N);sel.forEach(function(f){var z=A.Z[f][t];for(var i=0;i<N;i++)sc[i]+=w[f]*z[i];});return sc;};
+    var ic=new Float64Array(T);for(t=0;t<T;t++)ic[t]=pear(ranks(scoreAt(t)),A.RR[t]);var h=hac(ic);
+    var g=decile(scoreAt,0),ncst=decile(scoreAt,cost);
+    var isS=sharpe(g.sp,0,split),oosS=sharpe(g.sp,split,T),netS=sharpe(ncst.net,split,T);
+    $('mIC').textContent=(h.mean>=0?'+':'')+h.mean.toFixed(3);
+    $('mIS').textContent=isS.toFixed(2);$('mOOS').textContent=oosS.toFixed(2);
+    $('mNET').textContent=netS.toFixed(2);$('mNET').style.color=netS>=0.3?'var(--pine)':'var(--clay)';
+    $('eq').innerHTML=chart(ncst.net);
+    // redundancy
+    var worst=0,pair=null;for(i=0;i<sel.length;i++)for(var j=i+1;j<sel.length;j++){var c=Math.abs(A.EC[sel[i]][sel[j]]);if(c>worst){worst=c;pair=[sel[i],sel[j]];}}
+    var rd=$('redun');
+    if(worst>0.6){rd.className='redun flag';rd.textContent='⚠ Redundant: '+DEF[pair[0]].n+' & '+DEF[pair[1]].n+' correlate '+worst.toFixed(2)+': the model double-counts one bet.';}
+    else{rd.className='redun ok';rd.textContent='✓ Selected factors are near-independent (max exposure corr '+worst.toFixed(2)+').';}
+    var best=Math.max.apply(null,sel.map(function(f){return A.stats[f].sh;}));
+    var lift=oosS-best;
+    $('msum').innerHTML='Model of <span style="font-family:var(--mono)">'+sel.length+'</span> factor'+(sel.length>1?'s':'')+'. Out-of-sample decile Sharpe <span style="font-family:var(--mono)">'+oosS.toFixed(2)+'</span>: '+
+      (lift>0.05?'<span class="good">beats the best single factor by '+lift.toFixed(2)+'</span> (diversification).':(lift<-0.05?'<span class="warn">below the best single factor</span>; a selected factor is adding noise.':'about even with the best single factor.'))+
+      ' Net of '+cost+' bps cost: Sharpe <span style="font-family:var(--mono)">'+netS.toFixed(2)+'</span>.';
+  }
+  function renderMenu(){
+    $('fmenu').innerHTML=A.stats.map(function(s,f){
+      var dim=Math.abs(s.t)<2?' dim':'';
+      return '<label class="frow"><input type="checkbox" data-f="'+f+'"'+(DEFAULT_SEL.indexOf(f)>=0?' checked':'')+'>'+
+        '<span class="fn">'+DEF[f].n+' <small>'+DEF[f].t+'</small></span>'+
+        '<span class="fs'+dim+'">'+(s.mic>=0?'+':'')+s.mic.toFixed(3)+'</span>'+
+        '<span class="fs'+dim+'">'+s.t.toFixed(2)+'</span>'+
+        '<span class="fs'+dim+'">'+s.sh.toFixed(2)+'</span></label>';
+    }).join('');
+    document.querySelectorAll('#fmenu input').forEach(function(c){c.addEventListener('change',model);});
+  }
+  function rebuild(){gen();renderMenu();model();}
+  $('weq').addEventListener('click',function(){WMODE='eq';this.setAttribute('aria-pressed','true');$('wic').setAttribute('aria-pressed','false');model();});
+  $('wic').addEventListener('click',function(){WMODE='ic';this.setAttribute('aria-pressed','true');$('weq').setAttribute('aria-pressed','false');model();});
+  $('cs2').addEventListener('input',function(){$('cs2v').textContent=this.value;model();});
+  $('resample').addEventListener('click',function(){SEED=(Math.imul(SEED,1664525)+1013904223)>>>0;rebuild();});
+  rebuild();
+})();
+</script>

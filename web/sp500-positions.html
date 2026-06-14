@@ -1,0 +1,112 @@
+<style>
+  :root{
+    --paper:#F3F4F1; --panel:#F8F9F6; --ink:#17211D; --ink-soft:#303A34;
+    --muted:#55605A; --line:#DBDFDA; --line-soft:#E7EAE5;
+    --pine:#0E6151; --pine-soft:#E7F0EC; --clay:#A0492F; --clay-soft:#F5EAE5;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;line-height:1.55;font-feature-settings:"tnum" 1;}
+  .wrap{max-width:1000px;margin:0 auto;padding:clamp(2.2rem,5vw,4rem) clamp(1.1rem,4vw,2.4rem) 4rem;}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--pine);display:flex;align-items:center;gap:.7rem;margin:0 0 1.2rem;flex-wrap:wrap;}
+  .eyebrow::before{content:"";width:24px;height:1px;background:var(--pine);}
+  h1{font-size:clamp(1.9rem,4.6vw,2.9rem);line-height:1.05;letter-spacing:-.02em;font-weight:680;margin:0 0 .9rem;text-wrap:balance;max-width:20ch;}
+  .sub{font-size:1.02rem;color:var(--ink-soft);max-width:66ch;margin:0 0 1.3rem;}
+  .sub b{color:var(--pine);font-weight:600;}
+  .meta{display:flex;flex-wrap:wrap;gap:.4rem;font-family:var(--mono);font-size:.72rem;}
+  .meta span{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:.28rem .6rem;border-radius:2px;}
+  .meta span b{color:var(--ink);font-weight:500;}
+
+  .thesis{margin:1.8rem 0 0;border:1px solid var(--line);border-left:3px solid var(--pine);background:var(--panel);border-radius:3px;padding:1rem 1.2rem;font-size:.96rem;color:var(--ink-soft);}
+  .thesis .lb{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--pine);display:block;margin-bottom:.4rem;}
+  .thesis b{color:var(--ink);font-weight:600;}
+
+  .board{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-top:2.4rem;}
+  .col{border:1px solid var(--line);border-radius:5px;overflow:hidden;background:var(--panel);}
+  .colhd{display:flex;align-items:baseline;justify-content:space-between;padding:.85rem 1.1rem;border-bottom:1px solid var(--line);font-family:var(--mono);}
+  .colhd .side{font-size:.82rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;display:flex;align-items:center;gap:.5rem;}
+  .colhd .side::before{content:"";width:9px;height:9px;border-radius:2px;}
+  .col.long .colhd{background:var(--pine-soft);} .col.long .side{color:var(--pine);} .col.long .side::before{background:var(--pine);}
+  .col.short .colhd{background:var(--clay-soft);} .col.short .side{color:var(--clay);} .col.short .side::before{background:var(--clay);}
+  .colhd .cnt{font-size:.66rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+
+  .pick{display:grid;grid-template-columns:26px 1fr;gap:.7rem;padding:.85rem 1.1rem;border-bottom:1px solid var(--line-soft);}
+  .pick:last-child{border-bottom:none;}
+  .pick .rk{font-family:var(--mono);font-size:.72rem;color:var(--muted);padding-top:.2rem;font-variant-numeric:tabular-nums;}
+  .pick .hd{display:flex;align-items:baseline;justify-content:space-between;gap:.6rem;margin-bottom:.45rem;}
+  .pick .tk{font-family:var(--mono);font-size:1.02rem;font-weight:600;letter-spacing:.02em;color:var(--ink);}
+  .pick .px{font-family:var(--mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums;}
+  .drv{display:flex;flex-direction:column;gap:.32rem;}
+  .tag{display:flex;align-items:center;gap:.55rem;font-size:.8rem;color:var(--ink-soft);}
+  .tag .b{height:4px;border-radius:2px;flex:none;min-width:6px;}
+  .col.long .tag .b{background:var(--pine);} .col.short .tag .b{background:var(--clay);}
+  .tag .t{line-height:1.3;}
+
+  footer{margin-top:2.8rem;padding-top:1.4rem;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:.7rem;}
+  .how{font-size:.86rem;color:var(--ink-soft);max-width:80ch;}
+  .how b{color:var(--ink);font-weight:600;}
+  .disc{font-family:var(--mono);font-size:.68rem;color:var(--muted);letter-spacing:.02em;line-height:1.6;border:1px solid var(--line);background:var(--panel);border-radius:3px;padding:.7rem .9rem;}
+  .disc b{color:var(--clay);}
+
+  @media(max-width:720px){.board{grid-template-columns:1fr;}}
+</style>
+
+<main class="wrap">
+  <header>
+    <div class="eyebrow"><span id="asof">AS OF —</span> · S&amp;P-500 · Market-Neutral</div>
+    <h1>Model Positions &amp; Reasoning</h1>
+    <p class="sub">The current long and short book from the market-neutral S&amp;P-500 model: a 5-seed LightGBM
+      ensemble on 49 features, beta- and factor-neutralized. Each name carries the model's <b>own reasons</b>,
+      read directly from its feature attributions (SHAP).</p>
+    <div class="meta">
+      <span>Signal <b>63-day</b></span><span>Rebalance <b>monthly</b></span>
+      <span>Book <b>top-30 / bottom-30</b></span><span>Features <b id="nf">49</b></span>
+      <span>Universe <b>top-500 by cap</b></span>
+    </div>
+  </header>
+
+  <div class="thesis">
+    <span class="lb">Current tilt</span>
+    <b>Long cyclical momentum, short expensive risk.</b> The book leans into commodity &amp; semiconductor momentum:
+    copper/gold miners (FCX, SCCO, NEM, AEM) and chip names (MU, LRCX, KLAC, WDC), and shorts high-volatility,
+    richly-valued software &amp; growth (SNOW, MDB, ZS, VEEV, INTU). A classic value-momentum-vs-glamour posture,
+    held market-neutral.
+  </div>
+
+  <div class="board">
+    <div class="col long" id="longcol">
+      <div class="colhd"><span class="side">Long</span><span class="cnt">top 15 of 30</span></div>
+    </div>
+    <div class="col short" id="shortcol">
+      <div class="colhd"><span class="side">Short</span><span class="cnt">top 15 of 30</span></div>
+    </div>
+  </div>
+
+  <footer>
+    <p class="how"><b>How to read the reasons.</b> The tags under each ticker are the three features that most
+      pushed that name toward its long or short position, ranked by the model's SHAP contribution (bar length =
+      relative weight within that pick). They are the model's <i>actual</i> drivers, not hand-written commentary.</p>
+    <div class="disc"><b>Research model, not investment advice.</b> Out-of-sample (2024-2026 holdout) net Sharpe ~0.35,
+      a small market-neutral edge. Positions are model output for a monthly-rebalanced long/short book, shown net of
+      nothing; prices as of the stated date. Includes the occasional universe artifact (e.g. a leveraged-ETF proxy).
+      Past and simulated results do not guarantee future performance.</div>
+  </footer>
+</main>
+
+<script>
+const DATA={"as_of":"2026-05-08","n_features":49,
+"longs":[{"ticker":"FCX","price":61.65,"rank":1,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"strong intermediate momentum","mag":0.274},{"text":"high downside volatility","mag":0.061}]},{"ticker":"SCCO","price":185.29,"rank":2,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"richly valued on book","mag":0.155},{"text":"strong intermediate momentum","mag":0.106}]},{"ticker":"GDXU","price":203.99,"rank":3,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"strong intermediate momentum","mag":0.451},{"text":"below 3-month highs","mag":0.398}]},{"ticker":"STX","price":782.64,"rank":4,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"richly valued on book","mag":0.107},{"text":"cash-heavy balance sheet","mag":0.075}]},{"ticker":"TER","price":359.77,"rank":5,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"strong intermediate momentum","mag":0.241},{"text":"not diluting / buying back","mag":0.171}]},{"ticker":"MU","price":746.81,"rank":6,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"very liquid","mag":0.288},{"text":"richly valued on book","mag":0.139}]},{"ticker":"WDC","price":480.0,"rank":7,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"strong intermediate momentum","mag":0.13},{"text":"richly valued on book","mag":0.097}]},{"ticker":"LRCX","price":294.05,"rank":8,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"richly valued on book","mag":0.192},{"text":"strong intermediate momentum","mag":0.146}]},{"ticker":"LITE","price":903.8,"rank":9,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"very liquid","mag":0.273},{"text":"strong intermediate momentum","mag":0.177}]},{"ticker":"AEM","price":193.21,"rank":10,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"strong intermediate momentum","mag":0.446},{"text":"richly valued on book","mag":0.362}]},{"ticker":"TPR","price":133.48,"rank":11,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"strong intermediate momentum","mag":0.994},{"text":"not diluting / buying back","mag":0.967}]},{"ticker":"NEM","price":116.51,"rank":12,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"strong intermediate momentum","mag":0.219},{"text":"not diluting / buying back","mag":0.086}]},{"ticker":"ALB","price":203.52,"rank":13,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"strong intermediate momentum","mag":0.19},{"text":"cash-heavy balance sheet","mag":0.073}]},{"ticker":"KLAC","price":1869.19,"rank":14,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"richly valued on book","mag":0.289},{"text":"high downside volatility","mag":0.131}]},{"ticker":"UAL","price":99.58,"rank":15,"drivers":[{"text":"frequent price gaps","mag":1.0},{"text":"high downside volatility","mag":0.088},{"text":"elevated 3-month volatility","mag":0.053}]}],
+"shorts":[{"ticker":"TRI","price":92.94,"rank":1,"drivers":[{"text":"weak 6-month momentum","mag":1.0},{"text":"high stock-specific risk","mag":0.998},{"text":"frequent drawdowns","mag":0.323}]},{"ticker":"EA","price":200.44,"rank":2,"drivers":[{"text":"calm recent trading","mag":1.0},{"text":"calm long-run volatility","mag":0.676},{"text":"high gross profitability","mag":0.496}]},{"ticker":"MDB","price":299.47,"rank":3,"drivers":[{"text":"high stock-specific risk","mag":1.0},{"text":"weak 6-month momentum","mag":0.746},{"text":"conservatively financed","mag":0.402}]},{"ticker":"FSLR","price":219.95,"rank":4,"drivers":[{"text":"high stock-specific risk","mag":1.0},{"text":"conservatively financed","mag":0.523},{"text":"not diluting / buying back","mag":0.174}]},{"ticker":"RVMD","price":141.81,"rank":5,"drivers":[{"text":"high stock-specific risk","mag":1.0},{"text":"weak cash generation","mag":0.603},{"text":"conservatively financed","mag":0.472}]},{"ticker":"VEEV","price":166.34,"rank":6,"drivers":[{"text":"weak 6-month momentum","mag":1.0},{"text":"high stock-specific risk","mag":0.92},{"text":"conservatively financed","mag":0.779}]},{"ticker":"VICI","price":28.84,"rank":7,"drivers":[{"text":"calmer than size peers","mag":1.0},{"text":"conservatively financed","mag":0.448},{"text":"low market beta","mag":0.22}]},{"ticker":"ORLY","price":92.96,"rank":8,"drivers":[{"text":"diluting its share count","mag":1.0},{"text":"high gross profitability","mag":0.407},{"text":"low market beta","mag":0.288}]},{"ticker":"INTU","price":396.31,"rank":9,"drivers":[{"text":"high stock-specific risk","mag":1.0},{"text":"weak 6-month momentum","mag":0.51},{"text":"fading intermediate momentum","mag":0.288}]},{"ticker":"SNOW","price":152.45,"rank":10,"drivers":[{"text":"high stock-specific risk","mag":1.0},{"text":"weak 6-month momentum","mag":0.777},{"text":"frequent drawdowns","mag":0.353}]},{"ticker":"NTRA","price":194.24,"rank":11,"drivers":[{"text":"high stock-specific risk","mag":1.0},{"text":"expensive on sales","mag":0.955},{"text":"conservatively financed","mag":0.554}]},{"ticker":"ZS","price":152.13,"rank":12,"drivers":[{"text":"high stock-specific risk","mag":1.0},{"text":"weak 6-month momentum","mag":0.954},{"text":"frequent drawdowns","mag":0.358}]},{"ticker":"EQT","price":55.96,"rank":13,"drivers":[{"text":"conservatively financed","mag":1.0},{"text":"low market beta","mag":0.485},{"text":"low stock-specific noise","mag":0.342}]},{"ticker":"AXON","price":403.54,"rank":14,"drivers":[{"text":"high stock-specific risk","mag":1.0},{"text":"weak 6-month momentum","mag":0.771},{"text":"not diluting / buying back","mag":0.263}]},{"ticker":"NTES","price":115.91,"rank":15,"drivers":[{"text":"conservatively financed","mag":1.0},{"text":"expensive on sales","mag":0.847},{"text":"low market beta","mag":0.737}]}]};
+(function(){
+  var fmt=function(p){return '$'+p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});};
+  document.getElementById('asof').textContent='AS OF '+new Date(DATA.as_of+'T00:00:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}).toUpperCase();
+  document.getElementById('nf').textContent=DATA.n_features;
+  function row(p){
+    var drv=p.drivers.map(function(d){var w=(8+d.mag*44).toFixed(0);return '<div class="tag"><span class="b" style="width:'+w+'px"></span><span class="t">'+d.text+'</span></div>';}).join('');
+    return '<div class="pick"><span class="rk">'+String(p.rank).padStart(2,'0')+'</span><div><div class="hd"><span class="tk">'+p.ticker+'</span><span class="px">'+fmt(p.price)+'</span></div><div class="drv">'+drv+'</div></div></div>';
+  }
+  document.getElementById('longcol').insertAdjacentHTML('beforeend',DATA.longs.map(row).join(''));
+  document.getElementById('shortcol').insertAdjacentHTML('beforeend',DATA.shorts.map(row).join(''));
+})();
+</script>
